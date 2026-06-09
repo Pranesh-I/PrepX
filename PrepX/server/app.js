@@ -11,7 +11,7 @@ app.use(cors());            //middleware we use app.use to use cors in our app a
 app.use(express.json());    //middleware we use app.use to parse incoming JSON data in the request body and make it available under req.body
 
 app.use("/api/auth", authRoutes);
-app.use("api/syllabus", syllabusRoutes);
+app.use("/api/syllabus", syllabusRoutes);
 app.use("/api/papers", paperRoutes);
 
 //define routes
