@@ -1,0 +1,11 @@
+npm init -y
+The command npm init -y is a shortcut used in Node.js to instantly set up a new project by creating a package.json file with default settings, completely skipping the usual setup questions.
+Here is a breakdown of how the two parts work:
+npm init: This is the initialization command. Normally, if you just type npm init, the terminal will ask you a step-by-step series of questions (asking for the project name, version, description, author, etc.) to help build your package.json file.
+-y (or --yes): This is the "yes" flag. It tells npm to automatically answer "yes" to all of those setup questions and just use the default values.
+
+npm install express mongoose dotenv cors multer
+npm install @google/generative-ai zod bcryptjs jsonwebtoken
+npm install cloudinary multer-storage-cloudinary
+npm install
+npm install -D nodemon  
