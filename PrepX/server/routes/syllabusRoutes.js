@@ -2,8 +2,13 @@ const express = require("express");
 const upload = require("../middleware/uploadMiddleware");
 const model = require("../services/geminiService");
 
+const {
+  uploadSyllabus,
+} = require("../controllers/syllabusController");
+
 const router = express.Router();
 
+// Test Cloudinary Upload
 router.post(
   "/test-upload",
   upload.single("syllabus"),
@@ -15,6 +20,7 @@ router.post(
   }
 );
 
+// Test Gemini Connection
 router.get("/test-gemini", async (req, res) => {
   try {
     const result = await model.generateContent(
@@ -36,5 +42,12 @@ router.get("/test-gemini", async (req, res) => {
     });
   }
 });
+
+// Real Upload Route
+router.post(
+  "/upload",
+  upload.single("syllabus"),
+  uploadSyllabus
+);
 
 module.exports = router;
