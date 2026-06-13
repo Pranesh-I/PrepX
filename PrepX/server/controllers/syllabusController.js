@@ -1,5 +1,9 @@
 const Syllabus = require("../models/Syllabus");
 
+const {
+  extractTopicsFromImage,
+} = require("../services/geminiService");
+
 const uploadSyllabus = async (req, res) => {
   try {
     if (!req.file) {
@@ -16,18 +20,24 @@ const uploadSyllabus = async (req, res) => {
       });
     }
 
+    const geminiResponse =
+      await extractTopicsFromImage(req.file.path);
+
+    const parsedData = JSON.parse(geminiResponse);
+
     const syllabus = await Syllabus.create({
       imageUrl: req.file.path,
-      rawText: "",
-      topics: [],
       subject: req.body.subject,
+      topics: parsedData.topics || [],
+      rawText: geminiResponse,
     });
 
     res.status(201).json({
       success: true,
       message: "Syllabus uploaded successfully",
       syllabusId: syllabus._id,
-      imageUrl: syllabus.imageUrl,
+      subject: syllabus.subject,
+      topics: syllabus.topics,
     });
   } catch (error) {
     console.error(error);
