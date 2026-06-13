@@ -9,11 +9,18 @@ const uploadSyllabus = async (req, res) => {
       });
     }
 
+    if (!req.body.subject) {
+      return res.status(400).json({
+        success: false,
+        message: "Subject is required",
+      });
+    }
+
     const syllabus = await Syllabus.create({
       imageUrl: req.file.path,
       rawText: "",
       topics: [],
-      subject: "",
+      subject: req.body.subject,
     });
 
     res.status(201).json({

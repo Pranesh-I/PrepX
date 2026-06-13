@@ -1,10 +1,14 @@
 const express = require("express");
 const upload = require("../middleware/uploadMiddleware");
-const model = require("../services/geminiService");
 
 const {
   uploadSyllabus,
 } = require("../controllers/syllabusController");
+
+const {
+  model,
+  extractTopicsFromImage,
+} = require("../services/geminiService");
 
 const router = express.Router();
 
@@ -48,6 +52,30 @@ router.post(
   "/upload",
   upload.single("syllabus"),
   uploadSyllabus
+);
+
+router.post(
+  "/test-vision",
+  upload.single("syllabus"),
+  async (req, res) => {
+    try {
+      const result = await extractTopicsFromImage(
+        req.file.path
+      );
+
+      res.json({
+        success: true,
+        result,
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
 );
 
 module.exports = router;
