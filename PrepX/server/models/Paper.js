@@ -29,6 +29,17 @@ const questionSchema = new mongoose.Schema({
     required: true,
   },
 
+  questionType: {
+    type: String,
+    default: "",
+  },
+
+  options: [
+    {
+      type: String,
+    },
+  ],
+
   parts: [questionPartSchema],
 });
 

@@ -1,4 +1,6 @@
 const Syllabus = require("../models/Syllabus");
+const Paper = require("../models/Paper");
+
 const {
   generateQuestionPaper,
 } = require("../services/paperGenerationService");
@@ -46,10 +48,29 @@ const generatePaper = async (req, res) => {
         blueprint
       );
 
+    // Remove markdown if Gemini returns ```json
+    const cleanedResponse = generatedPaper
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const parsedPaper = JSON.parse(
+      cleanedResponse
+    );
+
+    const savedPaper = await Paper.create({
+      syllabusId: syllabus._id,
+      subject: syllabus.subject,
+      blueprint,
+      questions: parsedPaper.questions,
+    });
+
     res.status(200).json({
       success: true,
-      message: "Question paper generated",
-      generatedPaper,
+      message: "Question paper generated and saved",
+      paperId: savedPaper._id,
+      totalQuestions:
+        savedPaper.questions.length,
     });
   } catch (error) {
     console.error(error);
