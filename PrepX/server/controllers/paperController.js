@@ -105,7 +105,62 @@ const getPaperById = async (req, res) => {
   }
 };
 
+const getAllPapers = async (req, res) => {
+  try {
+
+    const papers = await Paper.find()
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      total: papers.length,
+      papers,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+};
+
+const deletePaper = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedPaper = await Paper.findByIdAndDelete(id);
+
+    if (!deletedPaper) {
+      return res.status(404).json({
+        success: false,
+        message: "Paper not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Paper deleted successfully",
+      deletedPaperId: deletedPaper._id,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   generatePaper,
   getPaperById,
+  getAllPapers,
+  deletePaper,
 };
