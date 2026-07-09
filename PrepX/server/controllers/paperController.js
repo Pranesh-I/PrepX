@@ -26,9 +26,7 @@ const generatePaper = async (req, res) => {
     console.log("========== PAPER DEBUG ==========");
     console.log("Received syllabusId:", syllabusId);
 
-    const syllabus = await Syllabus.findById(
-      syllabusId
-    );
+    const syllabus = await Syllabus.findById(syllabusId);
 
     console.log("Syllabus Found:");
     console.log(syllabus);
@@ -41,12 +39,11 @@ const generatePaper = async (req, res) => {
       });
     }
 
-    const generatedPaper =
-      await generateQuestionPaper(
-        syllabus.subject,
-        syllabus.topics,
-        blueprint
-      );
+    const generatedPaper = await generateQuestionPaper(
+      syllabus.subject,
+      syllabus.topics,
+      blueprint
+    );
 
     // Remove markdown if Gemini returns ```json
     const cleanedResponse = generatedPaper
@@ -54,9 +51,7 @@ const generatePaper = async (req, res) => {
       .replace(/```/g, "")
       .trim();
 
-    const parsedPaper = JSON.parse(
-      cleanedResponse
-    );
+    const parsedPaper = JSON.parse(cleanedResponse);
 
     const savedPaper = await Paper.create({
       syllabusId: syllabus._id,
@@ -69,9 +64,37 @@ const generatePaper = async (req, res) => {
       success: true,
       message: "Question paper generated and saved",
       paperId: savedPaper._id,
-      totalQuestions:
-        savedPaper.questions.length,
+      totalQuestions: savedPaper.questions.length,
     });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getPaperById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const paper = await Paper.findById(id);
+
+    if (!paper) {
+      return res.status(404).json({
+        success: false,
+        message: "Paper not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      paper,
+    });
+
   } catch (error) {
     console.error(error);
 
@@ -84,4 +107,5 @@ const generatePaper = async (req, res) => {
 
 module.exports = {
   generatePaper,
+  getPaperById,
 };
