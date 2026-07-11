@@ -5,6 +5,10 @@ const {
   generateQuestionPaper,
 } = require("../services/paperGenerationService");
 
+const {
+  generatePDF,
+} = require("../services/pdfService");
+
 const generatePaper = async (req, res) => {
   try {
     const { syllabusId, blueprint } = req.body;
@@ -158,9 +162,57 @@ const deletePaper = async (req, res) => {
   }
 };
 
+const downloadPaper = async (req, res) => {
+  try {
+    console.log("========== DOWNLOAD ==========");
+
+    const { id } = req.params;
+    console.log("Paper ID:", id);
+
+    const paper = await Paper.findById(id);
+
+    console.log("Paper Found:", !!paper);
+
+    if (!paper) {
+      return res.status(404).json({
+        success: false,
+        message: "Paper not found",
+      });
+    }
+
+    console.log("Calling generatePDF()...");
+
+    const pdf = await generatePDF(paper);
+
+    console.log("generatePDF() completed");
+
+    console.log(pdf);
+
+    res.download(pdf.filePath, pdf.fileName, (err) => {
+      if (err) {
+        console.log("Download Error");
+        console.log(err);
+      } else {
+        console.log("Download Success");
+      }
+    });
+
+  } catch (error) {
+
+    console.error("DOWNLOAD ERROR");
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+};
 module.exports = {
   generatePaper,
   getPaperById,
   getAllPapers,
   deletePaper,
+  downloadPaper,
 };

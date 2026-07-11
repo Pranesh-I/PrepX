@@ -9,3 +9,4 @@ npm install @google/generative-ai zod bcryptjs jsonwebtoken
 npm install cloudinary multer-storage-cloudinary
 npm install
 npm install -D nodemon  
+npm install pdfkit
