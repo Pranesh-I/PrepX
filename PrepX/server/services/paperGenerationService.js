@@ -75,6 +75,24 @@ QUESTION QUALITY RULES
 
 ====================================================
 
+ANSWER GENERATION RULES
+
+Every generated question must include an evaluation reference.
+
+For objective questions (MCQ, True/False, Fill in the Blank):
+
+- Generate the correctAnswer.
+- Generate a short modelAnswer explaining why the answer is correct.
+
+For descriptive questions (2, 5, 10, 14 marks):
+
+- Generate an ideal faculty-quality modelAnswer.
+- Generate a markingScheme containing the important points expected in the student's answer.
+- Do NOT simply repeat the model answer.
+- The markingScheme must contain only concise key points that an examiner would look for while awarding marks.
+
+====================================================
+
 1 MARK QUESTIONS
 
 Allowed Types:
@@ -106,10 +124,11 @@ Example:
     "Syntax Analysis",
     "Code Generation",
     "Code Optimization"
-  ]
+  ],
+  "correctAnswer":"Lexical Analysis",
+  "modelAnswer":"Lexical Analysis converts source code into tokens."
 }
 
-DO NOT provide answers.
 
 --------------------------
 
@@ -119,23 +138,21 @@ TRUE/FALSE FORMAT
   "topic":"LL(1) Parser",
   "marks":1,
   "questionType":"true_false",
-  "questionText":"LL(1) parser uses one lookahead symbol."
+  "questionText":"LL(1) parser uses one lookahead symbol.",
+  "correctAnswer":"True",
+  "modelAnswer":"LL(1) parsers use one lookahead symbol."
 }
 
-DO NOT provide answers.
-
 --------------------------
-
-FILL BLANK FORMAT
 
 {
   "topic":"Three Address Code",
   "marks":1,
   "questionType":"fill_blank",
-  "questionText":"__________ is an intermediate representation that uses at most three operands."
+  "questionText":"__________ is an intermediate representation that uses at most three operands.",
+  "correctAnswer":"Three Address Code",
+  "modelAnswer":"Three Address Code is an intermediate representation used by compilers."
 }
-
-DO NOT provide answers.
 
 ====================================================
 
@@ -151,6 +168,27 @@ Generate:
 
 Keep answers short in nature.
 
+Every 2-mark question MUST include:
+
+Example
+
+{
+    "questionText":"...",
+    "marks":2,
+    "topic":"...",
+    "questionType":"short_answer",
+
+    "modelAnswer":"Ideal answer here.",
+
+    "markingScheme":{
+        "keyPoints":[
+            "...",
+            "...",
+            "..."
+        ]
+    }
+}
+
 ====================================================
 
 5 MARK QUESTIONS
@@ -161,6 +199,14 @@ Generate:
 - Procedures
 - Working principles
 - Short theory questions
+
+Every 5-mark question MUST include:
+
+modelAnswer
+
+markingScheme
+
+The markingScheme should contain approximately 5 important key points.
 
 ====================================================
 
@@ -214,11 +260,32 @@ Output:
       "label":"a",
       "marks":10,
       "questionText":"Explain the working of SLR Parsing with suitable example."
+      "modelAnswer":"Ideal faculty answer.",
+
+      "markingScheme":{
+          "keyPoints":[
+              "...",
+              "...",
+              "...",
+              "..."
+          ]
+      }
     },
     {
       "label":"b",
       "marks":4,
       "questionText":"List the advantages of SLR Parsing."
+
+      "modelAnswer":"Ideal faculty answer.",
+
+      "markingScheme":{
+          "keyPoints":[
+              "...",
+              "...",
+              "...",
+              "..."
+          ]
+      }
     }
   ]
 }
@@ -235,6 +302,8 @@ and any custom pattern.
 
 ====================================================
 
+====================================================
+
 OUTPUT FORMAT
 
 Return ONLY VALID JSON.
@@ -243,13 +312,62 @@ Return ONLY VALID JSON.
   "questions":[]
 }
 
-No markdown.
+Rules
 
-No explanation.
+MCQ questions MUST contain:
 
-No extra text.
+- questionText
+- marks
+- topic
+- questionType
+- options
+- correctAnswer
+- modelAnswer
 
-Return only JSON.
+True/False questions MUST contain:
+
+- questionText
+- marks
+- topic
+- questionType
+- correctAnswer
+- modelAnswer
+
+Fill in the Blank questions MUST contain:
+
+- questionText
+- marks
+- topic
+- questionType
+- correctAnswer
+- modelAnswer
+
+Descriptive questions MUST contain:
+
+- questionText
+- marks
+- topic
+- questionType
+- modelAnswer
+- markingScheme
+
+Split questions MUST contain:
+
+- label
+- marks
+- questionText
+- modelAnswer
+- markingScheme
+
+Return ONLY valid JSON.
+
+Do not use markdown.
+
+Do not add explanations.
+
+Do not add notes.
+
+Do not wrap JSON inside triple backticks.
 `;
 
   const result = await model.generateContent(prompt);

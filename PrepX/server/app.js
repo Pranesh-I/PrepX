@@ -4,6 +4,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const syllabusRoutes = require("./routes/syllabusRoutes");
 const paperRoutes = require("./routes/paperRoutes");
+const examRoutes = require("./routes/examRoutes");
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());    //middleware we use app.use to parse incoming JSON d
 app.use("/api/auth", authRoutes);
 app.use("/api/syllabus", syllabusRoutes);
 app.use("/api/papers", paperRoutes);
+app.use("/api/exam", examRoutes);
 
 //define routes
 app.get("/", (req, res) => {

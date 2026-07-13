@@ -13,6 +13,7 @@ const generatePaper = async (req, res) => {
   try {
     const { syllabusId, blueprint } = req.body;
 
+    // Validate Request
     if (!syllabusId) {
       return res.status(400).json({
         success: false,
@@ -20,21 +21,15 @@ const generatePaper = async (req, res) => {
       });
     }
 
-    if (!blueprint || !Array.isArray(blueprint)) {
+    if (!Array.isArray(blueprint) || blueprint.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Blueprint array is required",
+        message: "Valid blueprint is required",
       });
     }
 
-    console.log("========== PAPER DEBUG ==========");
-    console.log("Received syllabusId:", syllabusId);
-
+    // Find syllabus
     const syllabus = await Syllabus.findById(syllabusId);
-
-    console.log("Syllabus Found:");
-    console.log(syllabus);
-    console.log("================================");
 
     if (!syllabus) {
       return res.status(404).json({
@@ -43,6 +38,7 @@ const generatePaper = async (req, res) => {
       });
     }
 
+    // Generate Question Paper
     const generatedPaper = await generateQuestionPaper(
       syllabus.subject,
       syllabus.topics,
@@ -55,8 +51,46 @@ const generatePaper = async (req, res) => {
       .replace(/```/g, "")
       .trim();
 
-    const parsedPaper = JSON.parse(cleanedResponse);
+    let parsedPaper;
 
+    try {
+      parsedPaper = JSON.parse(cleanedResponse);
+    } catch (err) {
+      console.error("Gemini JSON Parse Error");
+      console.error(cleanedResponse);
+
+      return res.status(500).json({
+        success: false,
+        message: "Gemini returned invalid JSON",
+      });
+    }
+
+    // Validate Response
+    if (
+      !parsedPaper.questions ||
+      !Array.isArray(parsedPaper.questions)
+    ) {
+      return res.status(500).json({
+        success: false,
+        message: "Generated paper format is invalid",
+      });
+    }
+
+    // Blueprint Validation
+    const expectedQuestions = blueprint.reduce(
+      (sum, item) => sum + item.count,
+      0
+    );
+
+    if (parsedPaper.questions.length !== expectedQuestions) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "Generated question count does not match blueprint",
+      });
+    }
+
+    // Save Paper
     const savedPaper = await Paper.create({
       syllabusId: syllabus._id,
       subject: syllabus.subject,
@@ -64,17 +98,18 @@ const generatePaper = async (req, res) => {
       questions: parsedPaper.questions,
     });
 
-    res.status(200).json({
+    return res.status(201).json({
       success: true,
-      message: "Question paper generated and saved",
+      message: "Question paper generated successfully",
       paperId: savedPaper._id,
       totalQuestions: savedPaper.questions.length,
     });
 
   } catch (error) {
+    console.error("Paper Generation Error");
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
